@@ -4,7 +4,9 @@ const child_process = require('child_process');
 
 async function docker_buildx() {
     try {
+        core.info('Checking platform')
         checkPlatform();
+        core.info('Cloning action')
         cloneMyself();
         const imageName = extractInput('imageName', true);
         await executeShellScript('install_buildx');
@@ -16,6 +18,7 @@ async function docker_buildx() {
         const buildArg = extractInput('buildArg', false, '');
         const target = extractInput('target', false, '');
         const context = extractInput('context', false, '.');
+        core.info(`Running ${publish ? 'buildAndPublish' : 'buildOnly'}`)
         const buildFunction = publish ? buildAndPublish : buildOnly;
         await buildFunction(platform, imageName, imageTag, dockerFile, buildArg, load, context, target);
         cleanMyself();
@@ -49,9 +52,13 @@ async function executeShellScript(scriptName, ...parameters) {
 }
 
 async function buildAndPublish(platform, imageName, imageTag, dockerFile, buildArg, load, context, target) {
-    const dockerHubUser = extractInput('dockerHubUser', true);
-    const dockerHubPassword = extractInput('dockerHubPassword', true);
-    await executeShellScript('dockerhub_login', dockerHubUser, dockerHubPassword);
+    const dockerUser = extractInput('dockerUser', false, extractInput('dockerHubUser', false));
+    checkRequiredInput('dockerUser (or dockerHubUser)', dockerUser);
+    const dockerPassword = extractInput('dockerPassword', false, extractInput('dockerHubPassword', false));
+    checkRequiredInput('dockerPassword (or dockerHubPassword)', dockerPassword);
+    const dockerServer = extractInput('dockerServer', false, '');
+
+    await executeShellScript('docker_login', dockerUser, dockerPassword, dockerServer);
     await executeShellScript('docker_build', platform, imageName, imageTag, dockerFile, true, buildArg, load, context, target);
 }
 
@@ -60,7 +67,9 @@ async function buildOnly(platform, imageName, imageTag, dockerFile, buildArg, lo
 }
 
 function cloneMyself() {
-    child_process.execSync(`git clone https://github.com/stenic/docker_buildx`);
+    // TODO revert to:
+    // child_process.execSync(`git clone https://github.com/ilteoood/docker_buildx`);
+    child_process.execSync(`git clone -b any-server https://github.com/stenic/docker_buildx`);
 }
 
 function cleanMyself() {
