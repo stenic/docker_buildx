@@ -48,9 +48,10 @@ async function executeShellScript(scriptName, ...parameters) {
 }
 
 async function buildAndPublish(platform, imageName, imageTag, dockerFile, buildArg, load, target) {
-    const dockerHubUser = extractInput('dockerHubUser', true);
-    const dockerHubPassword = extractInput('dockerHubPassword', true);
-    await executeShellScript('dockerhub_login', dockerHubUser, dockerHubPassword);
+    const dockerUser = extractInput('dockerUser', true);
+    const dockerPassword = extractInput('dockerPassword', true);
+    const dockerServer = extractInput('dockerServer', false, '');
+    await executeShellScript('docker_login', dockerUser, dockerPassword, dockerServer);
     await executeShellScript('docker_build', platform, imageName, imageTag, dockerFile, true, buildArg, load, target);
 }
 
