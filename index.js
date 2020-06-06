@@ -31,7 +31,7 @@ function checkPlatform() {
 
 function extractInput(inputName, required, defaultValue) {
     const inputValue = core.getInput(inputName);
-    if(required) checkRequiredInput(inputName, inputValue);
+    if (required) checkRequiredInput(inputName, inputValue);
     return inputValue ? inputValue : defaultValue;
 }
 
@@ -44,7 +44,7 @@ function checkRequiredInput(inputName, inputValue) {
 async function executeShellScript(scriptName, ...parameters) {
     parameters = (parameters || []).join(' ');
     const command = `docker_buildx/scripts/${scriptName}.sh ${parameters}`;
-    child_process.execSync(command, {stdio: 'inherit'});
+    child_process.execSync(command, { stdio: 'inherit' });
 }
 
 async function buildAndPublish(platform, imageName, imageTag, dockerFile, buildArg, load, target) {
@@ -59,7 +59,7 @@ async function buildOnly(platform, imageName, imageTag, dockerFile, buildArg, lo
 }
 
 function cloneMyself() {
-    child_process.execSync(`git clone https://github.com/ilteoood/docker_buildx`);
+    child_process.execSync(`git clone https://github.com/stenic/docker_buildx`);
 }
 
 function cleanMyself() {
